@@ -494,7 +494,7 @@ onUnmounted(() => {
       </div>
 
       <p class="mt-6 text-text-dim text-xs font-display tracking-wide animate-fade-up animate-delay-4">
-        Made with ❤️ by <a href="https://github.com/pkucpkam" target="_blank"
+        Made with ❤️ by <a href="https://github.com/pkucpkam" target="_blank" rel="noopener noreferrer"
           class="hover:text-accent-coral transition-colors">pkucpkam</a>
       </p>
     </div>
