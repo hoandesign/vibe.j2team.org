@@ -131,11 +131,11 @@ export function useAudio() {
   }
 
   function pauseMusic() {
-    if (musicEl) musicEl.pause();
+    if (musicEl) musicEl.pause()
   }
 
   function resumeMusic() {
-    if (musicEl) void musicEl.play();
+    if (musicEl) void musicEl.play()
   }
 
   function toggleMute() {

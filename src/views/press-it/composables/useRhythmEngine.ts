@@ -113,7 +113,7 @@ export function useRhythmEngine() {
   }
 
   function resume() {
-    isPlaying.value = true;
+    isPlaying.value = true
   }
 
   function reset() {
