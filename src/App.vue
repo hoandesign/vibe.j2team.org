@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterView, useRoute } from 'vue-router'
-import { useHead } from '@unhead/vue'
+import { useHead, useSeoMeta } from '@unhead/vue'
 import { computed } from 'vue'
 import ErrorBoundary from '@/components/ErrorBoundary.vue'
 
@@ -15,26 +15,24 @@ const DEFAULT_DESCRIPTION =
 const title = computed(() => route.meta.title || DEFAULT_TITLE)
 const description = computed(() => route.meta.description || DEFAULT_DESCRIPTION)
 const canonicalUrl = computed(() => `${SITE_URL}${route.path}`)
-const author = computed(() => route.meta.author)
 
-useHead(
-  computed(() => ({
-    title: title.value,
-    link: [{ rel: 'canonical', href: canonicalUrl.value }],
-    meta: [
-      { name: 'description', content: description.value },
-      ...(author.value ? [{ name: 'author', content: author.value }] : []),
-      { property: 'og:title', content: title.value },
-      { property: 'og:description', content: description.value },
-      { property: 'og:url', content: canonicalUrl.value },
-      { property: 'og:type', content: 'website' },
-      { property: 'og:site_name', content: SITE_NAME },
-      { name: 'twitter:card', content: 'summary' },
-      { name: 'twitter:title', content: title.value },
-      { name: 'twitter:description', content: description.value },
-    ],
-  })),
-)
+useHead({
+  title,
+  link: [{ rel: 'canonical', href: canonicalUrl }],
+})
+
+useSeoMeta({
+  description,
+  author: computed(() => route.meta.author as string | undefined),
+  ogTitle: title,
+  ogDescription: description,
+  ogUrl: canonicalUrl,
+  ogType: 'website',
+  ogSiteName: SITE_NAME,
+  twitterCard: 'summary',
+  twitterTitle: title,
+  twitterDescription: description,
+})
 </script>
 
 <template>
