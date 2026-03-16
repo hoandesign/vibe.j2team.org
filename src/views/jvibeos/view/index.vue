@@ -87,11 +87,13 @@ const togglePlay = () => {
 const fullscreenState = ref(0)
 const isMobile = ref(false)
 
-onMounted(() => {
+const handleResize = () => {
   isMobile.value = window.innerWidth <= 768
-  window.addEventListener('resize', () => {
-    isMobile.value = window.innerWidth <= 768
-  })
+}
+
+onMounted(() => {
+  handleResize()
+  window.addEventListener('resize', handleResize)
 })
 
 // Click on fullscreen/expand button
@@ -159,6 +161,7 @@ const displayedComments = ref(getRandomComments())
 
 onUnmounted(() => {
   stopProgress()
+  window.removeEventListener('resize', handleResize)
   document.removeEventListener('fullscreenchange', handleFullscreenChange)
 })
 

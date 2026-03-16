@@ -220,12 +220,14 @@ const getRawY = (val: number) => {
 let marketInt: ReturnType<typeof setInterval> | undefined
 let hookSwingInt: ReturnType<typeof setInterval> | undefined
 
+const handleKeydown = (e: KeyboardEvent) => {
+  if (e.code === 'Space' && currentView.value === 'Mining') {
+    throwHook()
+  }
+}
+
 onMounted(() => {
-  window.addEventListener('keydown', (e) => {
-    if (e.code === 'Space' && currentView.value === 'Mining') {
-      throwHook()
-    }
-  })
+  window.addEventListener('keydown', handleKeydown)
 
   hookSwingInt = setInterval(() => {
     if (!isHookMoving.value) {
@@ -278,6 +280,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown)
   if (marketInt) clearInterval(marketInt)
   if (hookSwingInt) clearInterval(hookSwingInt)
 })
