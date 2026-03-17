@@ -151,6 +151,13 @@ onUnmounted(() => {
           </span>
           <div class="absolute inset-0 h-full w-full translate-y-full transform bg-accent-coral transition-transform duration-300 ease-in-out group-hover:translate-y-0 -z-0"></div>
         </button>
+
+        <router-link to="/" class="px-8 py-4 bg-transparent text-white/70 font-bold uppercase tracking-widest border border-white/20 transition-all hover:bg-white/10 hover:text-white w-full max-w-xs cursor-pointer text-center flex items-center justify-center gap-2">
+          <span class="relative z-10 flex items-center justify-center gap-2">
+            <span class="i-ph-house-fill text-xl"></span>
+            Về trang chủ
+          </span>
+        </router-link>
       </div>
 
       <!-- Màn hình chơi -->
