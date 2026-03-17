@@ -329,6 +329,7 @@ Default is `true` — the toolbar is shown unless explicitly disabled.
 7. **Follow `meta.ts` structure** — Copy the pattern from `src/views/hello-world/meta.ts` exactly. Import `PageMeta` type, export default with required fields
 8. **No exposed API endpoints/secrets** — Since this is open source, never hard-code API keys, endpoints, or secrets in the source code
 9. **No large data files in `src/`** — If your app needs a large data file (> 50 kB), place it in `public/data/` as JSON and fetch it lazily. Do NOT export it as a TypeScript/JS module. See "Bundle Size — Avoid bloating JS chunks" section above
+10. **Clean up side effects on unmount** — Every `addEventListener`, `setInterval`, `setTimeout`, `requestAnimationFrame`, or any other global side effect registered in `onMounted` MUST be cleaned up in `onUnmounted`. Prefer VueUse composables (`useEventListener`, `useIntervalFn`, `useTimeoutFn`, `useRafFn`) which handle cleanup automatically. Forgetting cleanup causes memory leaks and ghost listeners that persist across route navigations in an SPA
 
 ## Linting & Formatting
 

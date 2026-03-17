@@ -6,7 +6,7 @@ import { useLocalStorage } from '@vueuse/core'
 import type { WingParams, Part } from './types'
 import { useCgCalculator } from './composables/use-cg-calculator'
 import WingVisualizer from './components/WingVisualizer.vue'
-import { toPng } from 'html-to-image'
+const htmlToImage = () => import('html-to-image')
 
 // Initial state
 const defaultParams: WingParams = {
@@ -55,6 +55,7 @@ function removePart(id: string) {
 async function captureImage() {
   if (!mainArea.value) return
   try {
+    const { toPng } = await htmlToImage()
     const dataUrl = await toPng(mainArea.value, {
       backgroundColor: '#0F1923',
       pixelRatio: 2,
