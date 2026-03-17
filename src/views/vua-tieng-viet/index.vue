@@ -11,6 +11,7 @@ const scrambledWord = ref<string[]>([])
 const userInput = ref('')
 const message = ref('')
 const isError = ref(false)
+const guessesLeft = ref(3)
 
 let timer: number | null = null
 
@@ -19,18 +20,40 @@ const words = wordsRaw.split('\n').map(w => w.trim()).filter(w => w.length > 0)
 
 // Randomize array in-place using Durstenfeld shuffle algorithm
 function shuffleArray<T>(array: T[]) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const temp = array[i];
-    array[i] = array[j] as T;
-    array[j] = temp as T;
+  const original = [...array];
+  let isSame = true;
+  let attempts = 0;
+
+  // If all elements are the same, no need to shuffle
+  if (new Set(array).size <= 1) return;
+
+  while (isSame && attempts < 10) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = array[i];
+      array[i] = array[j] as T;
+      array[j] = temp as T;
+    }
+
+    isSame = false;
+    for (let i = 0; i < array.length; i++) {
+      if (array[i] !== original[i]) {
+        break;
+      }
+      if (i === array.length - 1) {
+        isSame = true;
+      }
+    }
+    attempts++;
   }
 }
+
 
 // Bắt đầu game
 function startGame() {
   score.value = 0
   timeLeft.value = 30
+  guessesLeft.value = 3
   gameState.value = 'playing'
   message.value = ''
   nextWord()
@@ -89,8 +112,13 @@ function checkAnswer() {
     }, 1000)
   } else {
     // Sai
-    message.value = 'Sai rồi, thử lại nhé!'
-    isError.value = true
+    guessesLeft.value--
+    if (guessesLeft.value <= 0) {
+      endGame()
+    } else {
+      message.value = `Sai rồi, bạn còn ${guessesLeft.value} lượt đoán!`
+      isError.value = true
+    }
   }
 }
 
@@ -122,9 +150,9 @@ onUnmounted(() => {
         <div class="text-left bg-white/5 border border-white/10 p-4 text-sm text-text-secondary w-full max-w-sm">
           <h3 class="text-accent-coral font-bold mb-2 uppercase tracking-wider text-xs">Luật chơi:</h3>
           <ul class="list-disc list-inside space-y-1">
-            <li>Bắt đầu với 30 giây</li>
+            <li>Bắt đầu với 30 giây và 3 lượt đoán</li>
             <li>Đoán đúng: +10 điểm, +5 giây</li>
-            <li>Hết giờ: Thua cuộc</li>
+            <li>Hết giờ hoặc hết lượt đoán: Thua cuộc</li>
           </ul>
         </div>
 
@@ -145,6 +173,10 @@ onUnmounted(() => {
           <div class="flex items-center gap-2 text-xl font-bold">
             <span class="i-ph-star-fill text-yellow-400"></span>
             <span class="text-white">Điểm: {{ score }}</span>
+          </div>
+          <div class="flex items-center gap-2 text-xl font-bold text-white">
+            <span class="i-ph-heart-fill text-accent-coral"></span>
+            <span>{{ guessesLeft }}</span>
           </div>
           <div class="flex items-center gap-2 text-xl font-bold" :class="{'text-accent-coral animate-pulse': timeLeft <= 10, 'text-white': timeLeft > 10}">
             <span class="i-ph-timer-bold"></span>
