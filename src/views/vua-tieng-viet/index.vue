@@ -73,15 +73,8 @@ function nextWord() {
   const randomIndex = Math.floor(Math.random() * words.length)
   currentWord.value = words[randomIndex] || ''
 
-  // Tách thành các từ đơn và trộn
-  const parts = currentWord.value.split(' ')
-
-  // Nếu từ chỉ có 1 âm tiết, tách thành các chữ cái. Nếu không, tách theo âm tiết.
-  if (parts.length === 1) {
-    scrambledWord.value = currentWord.value.split('')
-  } else {
-    scrambledWord.value = [...parts]
-  }
+  // Tách thành các chữ cái (bỏ qua khoảng trắng) và trộn
+  scrambledWord.value = currentWord.value.split('').filter(char => char.trim() !== '')
 
   shuffleArray(scrambledWord.value)
   userInput.value = ''
@@ -186,8 +179,8 @@ onUnmounted(() => {
 
         <!-- Từ bị xáo trộn -->
         <div class="text-center py-8 bg-white/5 border border-white/10 flex flex-wrap justify-center gap-3 min-h-[120px] items-center p-4">
-          <span v-for="(word, index) in scrambledWord" :key="index" class="text-2xl md:text-3xl font-bold text-white uppercase bg-black/50 px-4 py-2 border border-white/20 shadow-[4px_4px_0px_rgba(255,107,107,0.5)]">
-            {{ word }}
+          <span v-for="(letter, index) in scrambledWord" :key="index" class="text-2xl md:text-3xl font-bold text-white uppercase bg-black/50 px-4 py-2 border border-white/20 shadow-[4px_4px_0px_rgba(255,107,107,0.5)]">
+            {{ letter }}
           </span>
         </div>
 
