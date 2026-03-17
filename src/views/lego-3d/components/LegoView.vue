@@ -29,6 +29,7 @@ let ghostBrick: any = null
 let isOrbitDragging = false
 let baseplate: any = null
 let threeBrickGroup: any = null
+let animationFrameId: number | null = null
 
 const GRID_SIZE = 1
 const BASE_W = 20
@@ -40,9 +41,11 @@ async function initThree() {
     await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js')
   }
   THREE = (window as any).THREE
-  
+
   if (!THREE.OrbitControls && !(window as any).THREE.OrbitControls) {
-    await loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js')
+    await loadScript(
+      'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js',
+    )
   }
 
   setupScene()
@@ -65,7 +68,12 @@ function setupScene() {
   scene = new THREE.Scene()
   scene.background = new THREE.Color(0x0a1018)
 
-  camera = new THREE.PerspectiveCamera(45, containerRef.value.clientWidth / containerRef.value.clientHeight, 0.1, 1000)
+  camera = new THREE.PerspectiveCamera(
+    45,
+    containerRef.value.clientWidth / containerRef.value.clientHeight,
+    0.1,
+    1000,
+  )
   camera.position.set(15, 15, 15)
   camera.lookAt(0, 0, 0)
 
@@ -114,23 +122,27 @@ function setupScene() {
   window.addEventListener('pointerup', onPointerUp, { capture: true })
   window.addEventListener('pointermove', onMouseMove, { capture: true })
 
-  controls.addEventListener('start', () => { isOrbitDragging = false })
-  controls.addEventListener('change', () => { isOrbitDragging = true })
+  controls.addEventListener('start', () => {
+    isOrbitDragging = false
+  })
+  controls.addEventListener('change', () => {
+    isOrbitDragging = true
+  })
 
   renderBricks()
 }
 
 function renderBricks() {
   if (!scene || !THREE) return
-  
+
   if (threeBrickGroup) scene.remove(threeBrickGroup)
   threeBrickGroup = new THREE.Group()
-  
-  props.bricks.forEach(brick => {
+
+  props.bricks.forEach((brick) => {
     const mesh = createBrickMesh(brick)
     threeBrickGroup.add(mesh)
   })
-  
+
   scene.add(threeBrickGroup)
 }
 
@@ -180,7 +192,7 @@ function createBrickMesh(brick: LegoBrick) {
 }
 
 function animate() {
-  requestAnimationFrame(animate)
+  animationFrameId = requestAnimationFrame(animate)
   if (controls) controls.update()
   if (renderer && scene && camera) renderer.render(scene, camera)
 }
@@ -203,7 +215,7 @@ function isPointerOnCanvas(e: PointerEvent): boolean {
 
 function onPointerDown(e: PointerEvent) {
   if (!isPointerOnCanvas(e)) return
-  
+
   legoLastDownTime = performance.now()
   legoLastDownPos = { x: e.clientX, y: e.clientY }
   isOrbitDragging = false
@@ -211,14 +223,14 @@ function onPointerDown(e: PointerEvent) {
 
 function updateGhostBrickState() {
   if (!ghostBrick || !THREE) return
-  
+
   // Update color
   ghostBrick.children.forEach((child: any) => {
     if (child.material) child.material.color.set(props.activeColor)
   })
-  
+
   // If type changed, it will be handled in onMouseMove next time it moves,
-  // but to be instant we might need to recreate it. 
+  // but to be instant we might need to recreate it.
   // For now, let's just mark it as needing update.
   if (ghostBrick.userData.type !== props.activeBrickType) {
     scene.remove(ghostBrick)
@@ -231,8 +243,9 @@ function onMouseMove(e: PointerEvent) {
     if (ghostBrick) ghostBrick.visible = false
     return
   }
-  
-  if (!containerRef.value || !raycaster || !THREE || !camera || !baseplate || !threeBrickGroup) return
+
+  if (!containerRef.value || !raycaster || !THREE || !camera || !baseplate || !threeBrickGroup)
+    return
 
   const rect = containerRef.value.getBoundingClientRect()
   mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1
@@ -244,26 +257,26 @@ function onMouseMove(e: PointerEvent) {
   if (intersects.length > 0) {
     const intersect = intersects[0]
     if (!intersect.face) return
-    
+
     const pos = intersect.point.clone()
     const normal = intersect.face.normal.clone().applyQuaternion(intersect.object.quaternion)
-    
+
     const data = BRICK_DATA[props.activeBrickType]
-    
+
     // Corner-based snapping:
     // User clicks a cell, brick starts from that cell.
     // Center = floor(point) + size/2
     const snap = (p: number, n: number, size: number) => {
-      // If we are clicking a side-face, we might want to offset, 
+      // If we are clicking a side-face, we might want to offset,
       // but for simplicity and kids: floor and align.
       // We use a small epsilon for normals to determine which cell we are entering
-      return Math.floor(p + n * 0.01) + (size / 2)
+      return Math.floor(p + n * 0.01) + size / 2
     }
-    
+
     const newPos = {
       x: snap(pos.x, normal.x, data.width),
       y: Math.max(0.6, pos.y + normal.y * (data.height / 2)),
-      z: snap(pos.z, normal.z, data.depth)
+      z: snap(pos.z, normal.z, data.depth),
     }
 
     if (!ghostBrick || ghostBrick.userData.type !== props.activeBrickType) {
@@ -273,7 +286,7 @@ function onMouseMove(e: PointerEvent) {
         type: props.activeBrickType,
         color: props.activeColor,
         position: newPos,
-        rotation: 0
+        rotation: 0,
       })
       ghostBrick.children.forEach((child: any) => {
         if (child.material) {
@@ -284,7 +297,7 @@ function onMouseMove(e: PointerEvent) {
       })
       scene.add(ghostBrick)
     }
-    
+
     ghostBrick.position.set(newPos.x, newPos.y, newPos.z)
     ghostBrick.visible = true
     ghostBrick.userData.type = props.activeBrickType
@@ -295,16 +308,19 @@ function onMouseMove(e: PointerEvent) {
 
 function onPointerUp(e: PointerEvent) {
   if (!isPointerOnCanvas(e)) return
-  
+
   if (!legoLastDownPos || legoLastDownPos.x === -1) return
 
   const duration = performance.now() - legoLastDownTime
-  const dist = Math.sqrt((e.clientX - legoLastDownPos.x) ** 2 + (e.clientY - legoLastDownPos.y) ** 2)
-  
+  const dist = Math.sqrt(
+    (e.clientX - legoLastDownPos.x) ** 2 + (e.clientY - legoLastDownPos.y) ** 2,
+  )
+
   // If user dragged too much or long press, don't place
   if (isOrbitDragging || dist > 20 || duration > 800) return
 
-  if (!containerRef.value || !raycaster || !THREE || !camera || !baseplate || !threeBrickGroup) return
+  if (!containerRef.value || !raycaster || !THREE || !camera || !baseplate || !threeBrickGroup)
+    return
 
   const rect = containerRef.value.getBoundingClientRect()
   mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1
@@ -315,7 +331,7 @@ function onPointerUp(e: PointerEvent) {
 
   if (intersects.length > 0) {
     const intersect = intersects[0]
-    
+
     if (e.altKey) {
       const brickMesh = findBrickParent(intersect.object)
       if (brickMesh) {
@@ -327,14 +343,14 @@ function onPointerUp(e: PointerEvent) {
     if (!intersect.face) return
     const pos = intersect.point.clone()
     const normal = intersect.face.normal.clone().applyQuaternion(intersect.object.quaternion)
-    
+
     const data = BRICK_DATA[props.activeBrickType]
-    const snap = (p: number, n: number, size: number) => Math.floor(p + n * 0.01) + (size / 2)
+    const snap = (p: number, n: number, size: number) => Math.floor(p + n * 0.01) + size / 2
 
     const newPos = {
       x: snap(pos.x, normal.x, data.width),
       y: Math.max(0.6, pos.y + normal.y * (data.height / 2)),
-      z: snap(pos.z, normal.z, data.depth)
+      z: snap(pos.z, normal.z, data.depth),
     }
 
     const newBrick: LegoBrick = {
@@ -342,7 +358,7 @@ function onPointerUp(e: PointerEvent) {
       type: props.activeBrickType,
       color: props.activeColor,
       position: newPos,
-      rotation: 0
+      rotation: 0,
     }
     emit('add-brick', newBrick)
   }
@@ -360,6 +376,8 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (animationFrameId !== null) cancelAnimationFrame(animationFrameId)
+  animationFrameId = null
   window.removeEventListener('resize', onWindowResize)
   window.removeEventListener('pointerdown', onPointerDown, { capture: true } as any)
   window.removeEventListener('pointerup', onPointerUp, { capture: true } as any)
@@ -367,14 +385,17 @@ onUnmounted(() => {
   if (renderer) renderer.dispose()
 })
 
-watch(() => props.bricks, () => {
-  renderBricks()
-}, { deep: true })
+watch(
+  () => props.bricks,
+  () => {
+    renderBricks()
+  },
+  { deep: true },
+)
 
 watch([() => props.activeBrickType, () => props.activeColor], () => {
   updateGhostBrickState()
 })
-
 </script>
 
 <template>
