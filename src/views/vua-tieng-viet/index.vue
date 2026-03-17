@@ -129,7 +129,7 @@ onUnmounted(() => {
       Quay lại
     </RouterLink>
 
-    <div class="max-w-xl w-full mx-auto relative border border-white/20 p-8 bg-black/40 backdrop-blur-md shadow-2xl before:content-[''] before:absolute before:inset-0 before:border before:border-accent-coral/30 before:-m-2">
+    <div class="max-w-xl w-full mx-auto relative border border-white/20 p-8 bg-black/40 backdrop-blur-md shadow-2xl before:content-[''] before:absolute before:inset-0 before:border before:border-accent-coral/30 before:-m-2 before:pointer-events-none">
 
       <!-- Tiêu đề -->
       <h1 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-accent-coral to-white uppercase tracking-tighter mb-8 text-center" style="-webkit-text-stroke: 1px rgba(255,107,107,0.5);">
