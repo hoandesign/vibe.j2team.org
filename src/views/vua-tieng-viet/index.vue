@@ -123,11 +123,6 @@ onUnmounted(() => {
 <template>
   <div class="min-h-screen bg-bg-deep text-text-primary p-4 md:p-8 font-mono flex flex-col items-center justify-center">
 
-    <!-- Link về trang chủ theo rule -->
-    <RouterLink to="/" class="absolute top-4 left-4 text-accent-coral hover:text-white transition-colors uppercase tracking-widest text-sm font-bold flex items-center gap-2 border border-accent-coral px-3 py-1 bg-black/30 backdrop-blur-sm">
-      <span class="i-ph-caret-left-bold"></span>
-      Quay lại
-    </RouterLink>
 
     <div class="max-w-xl w-full mx-auto relative border border-white/20 p-8 bg-black/40 backdrop-blur-md shadow-2xl before:content-[''] before:absolute before:inset-0 before:border before:border-accent-coral/30 before:-m-2">
 
