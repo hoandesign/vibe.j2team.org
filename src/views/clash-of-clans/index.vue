@@ -186,14 +186,14 @@ const handleChangeClan = () => {
           </button>
         </div>
 
-        <!-- Render Tabs -->
-        <Dashboard v-if="activeTab === 'dashboard'" :clan="clanData" :warLog="warLog" />
+        <!-- Render Tabs (v-show to preserve state across tab switches) -->
+        <Dashboard v-show="activeTab === 'dashboard'" :clan="clanData" :warLog="warLog" />
         <CurrentWar
-          v-if="activeTab === 'war'"
+          v-show="activeTab === 'war'"
           :clanTag="clanData.tag"
           @memberClick="activeTab = 'members'"
         />
-        <MembersRank v-if="activeTab === 'members'" :members="clanData.memberList" />
+        <MembersRank v-show="activeTab === 'members'" :members="clanData.memberList" />
       </div>
 
       <!-- Footer Citation -->
