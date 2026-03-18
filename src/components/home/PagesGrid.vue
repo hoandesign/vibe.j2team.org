@@ -137,6 +137,9 @@ function goToRandom() {
   if (randomPage) router.push(randomPage.path)
 }
 
+const categoryExpanded = ref(false)
+const categoryContainerRef = ref<HTMLElement | null>(null)
+
 const searchInputRef = ref<HTMLInputElement | null>(null)
 
 function handleKeydown(e: KeyboardEvent) {
@@ -210,36 +213,54 @@ useEventListener(document, 'keydown', handleKeydown)
       </div>
 
       <!-- Category tags -->
-      <div class="flex flex-wrap gap-2">
-        <button
-          class="px-3 py-1.5 text-xs font-display tracking-wide border transition-colors duration-200"
-          :class="
-            activeCategory === null
-              ? 'bg-accent-coral text-bg-deep border-accent-coral'
-              : 'bg-bg-elevated text-text-secondary border-border-default hover:border-accent-coral hover:text-text-primary'
-          "
-          @click="activeCategory = null"
+      <div class="relative">
+        <div
+          ref="categoryContainerRef"
+          class="flex flex-wrap gap-2 transition-[max-height] duration-300 ease-in-out overflow-hidden sm:!max-h-none"
+          :class="categoryExpanded ? 'max-h-[500px]' : 'max-h-[4.5rem]'"
         >
-          Tất cả ({{ pages.length }})
-        </button>
+          <button
+            class="px-3 py-1.5 text-xs font-display tracking-wide border transition-colors duration-200"
+            :class="
+              activeCategory === null
+                ? 'bg-accent-coral text-bg-deep border-accent-coral'
+                : 'bg-bg-elevated text-text-secondary border-border-default hover:border-accent-coral hover:text-text-primary'
+            "
+            @click="activeCategory = null"
+          >
+            Tất cả ({{ pages.length }})
+          </button>
+          <button
+            v-for="cat in categories"
+            :key="cat.id"
+            :title="cat.description"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-display tracking-wide border transition-colors duration-200"
+            :class="
+              activeCategory === cat.id
+                ? 'bg-accent-coral text-bg-deep border-accent-coral'
+                : categoryCounts[cat.id]
+                  ? 'bg-bg-elevated text-text-secondary border-border-default hover:border-accent-coral hover:text-text-primary'
+                  : 'bg-bg-surface text-text-dim border-border-default border-dashed hover:border-accent-coral/50 hover:text-text-secondary'
+            "
+            @click="toggleCategory(cat.id)"
+          >
+            <Icon :icon="cat.icon" aria-hidden="true" class="w-3.5 h-3.5" />
+            {{ cat.label }}
+            <span v-if="categoryCounts[cat.id]">({{ categoryCounts[cat.id] }})</span>
+            <span v-else class="text-accent-coral/70">✦</span>
+          </button>
+        </div>
+        <!-- Expand/collapse toggle (mobile only) -->
         <button
-          v-for="cat in categories"
-          :key="cat.id"
-          :title="cat.description"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-display tracking-wide border transition-colors duration-200"
-          :class="
-            activeCategory === cat.id
-              ? 'bg-accent-coral text-bg-deep border-accent-coral'
-              : categoryCounts[cat.id]
-                ? 'bg-bg-elevated text-text-secondary border-border-default hover:border-accent-coral hover:text-text-primary'
-                : 'bg-bg-surface text-text-dim border-border-default border-dashed hover:border-accent-coral/50 hover:text-text-secondary'
-          "
-          @click="toggleCategory(cat.id)"
+          class="sm:hidden mt-1.5 flex items-center gap-1 text-xs text-text-dim hover:text-accent-coral transition-colors duration-200"
+          @click="categoryExpanded = !categoryExpanded"
         >
-          <Icon :icon="cat.icon" aria-hidden="true" class="w-3.5 h-3.5" />
-          {{ cat.label }}
-          <span v-if="categoryCounts[cat.id]">({{ categoryCounts[cat.id] }})</span>
-          <span v-else class="text-accent-coral/70">✦</span>
+          <Icon
+            :icon="categoryExpanded ? 'lucide:chevron-up' : 'lucide:chevron-down'"
+            aria-hidden="true"
+            class="w-3.5 h-3.5"
+          />
+          {{ categoryExpanded ? 'Thu gọn' : 'Xem thêm danh mục' }}
         </button>
       </div>
 
