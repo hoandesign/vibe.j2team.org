@@ -1,6 +1,6 @@
 import type { CategoryId } from '@/data/categories'
 import type { PageInfo } from '@/types/page'
-import { pages } from '@/data/pages-loader'
+import { getPagesCacheSync } from '@/stores/usePagesStore'
 
 export interface AuthorStats {
   author: string
@@ -33,7 +33,7 @@ function buildAllAuthors(): Map<string, AuthorPageData> {
 
   const map = new Map<string, AuthorPageData>()
 
-  for (const page of pages) {
+  for (const page of getPagesCacheSync()) {
     const existing = map.get(page.author)
     if (existing) {
       existing.apps.push(page)

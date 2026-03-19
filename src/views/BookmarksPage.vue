@@ -4,7 +4,7 @@ import { RouterLink } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { refDebounced } from '@vueuse/core'
 import { Icon } from '@iconify/vue'
-import { pageByPath } from '@/data/pages-loader'
+import { usePagesStore } from '@/stores/usePagesStore'
 import type { CategoryId } from '@/data/categories'
 import { normalize } from '@/utils/text'
 import { useSearchShortcut } from '@/composables/useSearchShortcut'
@@ -28,9 +28,11 @@ function toggleReorder() {
   isReordering.value = !isReordering.value
 }
 
+const pagesStore = usePagesStore()
+
 const bookmarkedPages = computed(() => {
   return favoritePaths.value.flatMap((path) => {
-    const p = pageByPath.get(path)
+    const p = pagesStore.pageByPath.get(path)
     return p ? [p] : []
   })
 })

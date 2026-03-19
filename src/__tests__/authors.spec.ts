@@ -7,10 +7,16 @@ type GetAuthorBySlug = (typeof import('@/data/authors'))['getAuthorBySlug']
 // Helper to import authors module with custom pages mock
 async function importAuthorsWithPages(pages: ReturnType<typeof makePageInfo>[]) {
   vi.resetModules()
-  vi.doMock('@/data/pages-loader', () => ({
-    pages,
-    featuredPages: pages.filter((p) => p.featured),
-    pageComponents: {},
+  vi.doMock('@/stores/usePagesStore', () => ({
+    getPagesCacheSync: () => pages,
+    fetchRawPages: () => Promise.resolve(pages),
+    usePagesStore: () => ({
+      pages: { value: pages },
+      featuredPages: { value: pages.filter((p) => p.featured) },
+      pageByPath: { value: new Map(pages.map((p) => [p.path, p])) },
+      isReady: { value: true },
+      init: () => Promise.resolve(),
+    }),
   }))
   return import('@/data/authors')
 }
